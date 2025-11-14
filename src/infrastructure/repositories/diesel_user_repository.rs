@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use diesel::prelude::*;
-use crate::domain::{
+use crate::domain::traits::{
     UserRepository as DomainUserRepository,
     Repository
 };

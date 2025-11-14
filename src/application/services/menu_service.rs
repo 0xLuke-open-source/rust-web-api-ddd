@@ -1,6 +1,6 @@
 use crate::application::dtos::menu_dto::{CreateMenuRequest, MenuResponse};
-use crate::domain::MenuRepository;
 use crate::domain::entities::Menu;
+use crate::domain::traits::MenuRepository;
 use crate::shared::errors::error::Error;
 
 pub struct MenuService<R: MenuRepository> {

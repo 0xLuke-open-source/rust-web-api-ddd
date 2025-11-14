@@ -1,5 +1,3 @@
-use crate::domain::Repository;
-use crate::domain::traits::RoleRepository;
 use crate::infrastructure::database::DbPool;
 use crate::infrastructure::database::models::role::{NewRole, Role};
 use crate::infrastructure::database::schema::roles::dsl::roles;
@@ -7,6 +5,8 @@ use crate::infrastructure::repositories::DieselRepositoryBase;
 use crate::shared::errors::error::Error;
 use async_trait::async_trait;
 use diesel::prelude::*;
+use crate::domain::traits::repository::Repository;
+use crate::domain::traits::role_repository::RoleRepository;
 
 #[derive(Clone)]
 pub struct DieselRoleRepository {

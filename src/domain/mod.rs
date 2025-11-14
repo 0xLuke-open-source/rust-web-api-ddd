@@ -7,15 +7,8 @@
 
 pub mod entities;
 pub mod enums;
-mod events;
-mod repositories;
+pub mod events;
+pub mod repositories;
 pub mod traits;
 pub mod value_objects;
 
-// 重新导出
-
-pub use traits::{
-    Repository,
-    UserRepository,
-    MenuRepository,
-};

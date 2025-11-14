@@ -1,14 +1,15 @@
 // infrastructure/repositories/diesel_menu_repository.rs
-use crate::domain::{MenuRepository as DomainMenuRepository, Repository, entities::Menu};
+use crate::domain::traits::{MenuRepository as DomainMenuRepository, Repository};
 use crate::infrastructure::database::models::menu::{NewMenu as DieselNewMenu, UpdateMenu};
+
 use crate::infrastructure::{
     database::{DbPool, models::menu::Menu as DieselMenu, schema::menus::dsl::*},
     repositories::DieselRepositoryBase,
 };
+use crate::shared::errors::error::Error;
 use async_trait::async_trait;
 use diesel::prelude::*;
-use crate::shared::errors::error::Error;
-
+use crate::domain::entities::Menu;
 #[derive(Clone)]
 pub struct DieselMenuRepository {
     base: DieselRepositoryBase,

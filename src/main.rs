@@ -8,9 +8,9 @@ mod shared;
 // 这种结构遵循了Clean Architecture原则，能够很好地支持大型Web API项目的长期发展需求
 
 
-use ai_block_chain::config::Config;
-use ai_block_chain::api::handlers::startup::Application;
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
+use rust_web_api_ddd::api::startup::Application;
+use rust_web_api_ddd::config::Config;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

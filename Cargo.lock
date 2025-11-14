@@ -106,42 +106,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ai-block-chain"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "argon2",
- "async-trait",
- "axum",
- "borsh 0.10.4",
- "chrono",
- "config",
- "diesel",
- "dotenvy",
- "env_logger 0.11.8",
- "futures",
- "hyper",
- "jsonwebtoken",
- "log",
- "pumpfun",
- "redis",
- "serde",
- "serde_json",
- "solana-client 3.0.8",
- "solana-sdk 3.0.0",
- "spl-token 8.0.0",
- "spl-token-metadata",
- "sqlx",
- "thiserror 2.0.17",
- "tokio",
- "tower",
- "tower-http",
- "tracing",
- "tracing-subscriber",
- "validator",
-]
-
-[[package]]
 name = "alloc-no-stdlib"
 version = "2.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4273,6 +4237,42 @@ checksum = "796e8d2b6696392a43bea58116b667fb4c29727dc5abd27d6acf338bb4f688c7"
 dependencies = [
  "cfg-if",
  "ordered-multimap",
+]
+
+[[package]]
+name = "rust-web-api-ddd"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "argon2",
+ "async-trait",
+ "axum",
+ "borsh 0.10.4",
+ "chrono",
+ "config",
+ "diesel",
+ "dotenvy",
+ "env_logger 0.11.8",
+ "futures",
+ "hyper",
+ "jsonwebtoken",
+ "log",
+ "pumpfun",
+ "redis",
+ "serde",
+ "serde_json",
+ "solana-client 3.0.8",
+ "solana-sdk 3.0.0",
+ "spl-token 8.0.0",
+ "spl-token-metadata",
+ "sqlx",
+ "thiserror 2.0.17",
+ "tokio",
+ "tower",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "validator",
 ]
 
 [[package]]

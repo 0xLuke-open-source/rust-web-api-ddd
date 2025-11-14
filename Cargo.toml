@@ -1,5 +1,5 @@
 [package]
-name = "ai-block-chain"
+name = "rust-web-api-ddd"
 version = "0.1.0"
 edition = "2024"
 

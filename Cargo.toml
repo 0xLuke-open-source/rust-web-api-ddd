@@ -19,6 +19,9 @@ async-trait = "0.1.89"
 sqlx = { version = "0.8.6", features = ["mysql", "runtime-tokio-rustls", "chrono"] }
 diesel = { version = "2.3.2", features = ["mysql", "r2d2", "chrono"] }
 
+# Redis
+redis = { version = "1.0.0-rc.3", features = ["tokio-comp", "connection-manager"] }
+
 # 序列化
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"

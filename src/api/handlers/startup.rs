@@ -9,6 +9,7 @@ use crate::{
     infrastructure::{
         create_db_pool,
         database::create_diesel_pool,
+        database::redis::create_redis_pool,
     },
 };
 use crate::api::AppState;
@@ -31,12 +32,16 @@ impl Application {
         let diesel_pool = create_diesel_pool(&config.database)
             .context("Failed to create Diesel database pool")?;
 
+        // 初始化Redis连接池
+        let redis_manager = create_redis_pool(&config.redis)
+            .await
+            .context("Failed to create Redis connection pool")?;
 
         // 2. 创建仓储注册表（通用化核心：新增仓储只需修改 RepositoryRegistry）
         let repo_registry = RepositoryRegistry::new(diesel_pool);
 
         // 3. 创建应用状态（自动包含所有服务）
-        let app_state = AppState::new(repo_registry);
+        let app_state = AppState::new(repo_registry, redis_manager,config.clone());
 
         // 4. 创建通用路由（无需修改，自动包含所有模块路由）
         let router = create_router(app_state);

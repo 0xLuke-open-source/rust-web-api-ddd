@@ -1,7 +1,8 @@
 // 用户相关处理器
 use crate::api::app_state::AppState;
+use crate::application::dtos::user_dto::{CreateUserRequest, LoginRequest, ValidateTokenRequest};
 use crate::shared::api_response::ApiResponse;
-use crate::application::dtos::user_dto::{CreateUserRequest, LoginRequest};
+use crate::shared::errors::error::Error::Validation;
 use crate::{domain::entities::UpdateUser, shared::errors::error::Error};
 use axum::{
     extract::{Json, Path, State},
@@ -77,4 +78,29 @@ pub async fn login_handler(
         }
         Err(e) => Err(e),
     }
+}
+
+pub async fn logout_handler(
+    State(app_state): State<Arc<AppState>>,
+    headers: HeaderMap,
+) -> Result<impl IntoResponse, Error> {
+    let token = headers.get("x-auth-token").and_then(|h| h.to_str().ok());
+    if token.is_none() {
+        return Err(Validation("Token is missing".to_string()));
+    }
+    app_state.user_service.logout(token.unwrap()).await?;
+    let response = ApiResponse::success_with_msg((), "登出成功");
+    Ok(Json(response))
+}
+
+pub async fn validate_token_handler(
+    State(app_state): State<Arc<AppState>>,
+    Json(token_request): Json<ValidateTokenRequest>,
+) -> Result<impl IntoResponse, Error> {
+    let is_valid = app_state
+        .user_service
+        .validate_token(&token_request.token)
+        .await?;
+    let response = ApiResponse::success_with_msg(is_valid, "Token验证结果");
+    Ok(Json(response))
 }

@@ -1,3 +1,4 @@
+use crate::api::middleware::auth_middleware::Claims;
 use crate::application::dtos::user_dto::{
     CreateUserRequest, LoginRequest, LoginResponse, UserResponse,
 };
@@ -6,7 +7,9 @@ use crate::shared::errors::error::Error;
 use argon2::password_hash::{SaltString, rand_core::OsRng};
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use chrono::{Duration, Utc};
-use jsonwebtoken::{EncodingKey, Header};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode};
+use redis::aio::ConnectionManager;
+use redis::{AsyncCommands, RedisResult};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use validator::ValidateEmail;
@@ -14,12 +17,15 @@ use validator::ValidateEmail;
 #[derive(Clone)]
 pub struct UserService<R: UserRepository> {
     user_repository: Arc<R>,
+    redis_manager: Arc<ConnectionManager>,
 }
+const TOKEN_KEY: &str = "sys:user:token";
 
 impl<R: UserRepository> UserService<R> {
-    pub fn new(user_repository: R) -> Self {
+    pub fn new(user_repository: R, redis_manager: ConnectionManager) -> Self {
         Self {
             user_repository: Arc::new(user_repository),
+            redis_manager: Arc::new(redis_manager),
         }
     }
 
@@ -138,12 +144,57 @@ impl<R: UserRepository> UserService<R> {
             return Err(Error::Unauthorized("Invalid password".into()));
         }
         let token = generate_token(&user)?;
+
+        // 缓存token到Redis
+        let cache_key = format!("{}:{}", TOKEN_KEY, user.id);
+        let mut redis_con = self.redis_manager.clone().as_ref().clone();
+        let _: RedisResult<()> = redis_con.set_ex(&cache_key, &token, 24 * 60 * 60).await;
+
         Ok(LoginResponse {
             token,
             user: UserResponse::from(user),
         })
     }
+
+    pub async fn logout(&self, token: &str) -> Result<(), Error> {
+        let user_id = self.get_user_id_from_token(&token).await;
+        if user_id.is_err() {
+            return Err(Error::Unauthorized("Invalid token".into()));
+        }
+        let cache_key = format!("{}:{}", TOKEN_KEY, user_id?);
+        let mut con = self.redis_manager.clone().as_ref().clone();
+        let cached_token: Option<String> = con.get(&cache_key).await?;
+        if cached_token.as_ref() != Some(&token.to_string()) {
+            return Err(Error::Unauthorized("Invalid token".into()));
+        }
+        let _: RedisResult<()> = con.del(&cache_key).await?;
+        Ok(())
+    }
+
+    pub async fn validate_token(&self, token: &str) -> Result<bool, Error> {
+        let user_id = self.get_user_id_from_token(&token).await;
+        if user_id.is_err() {
+            return Err(Error::Unauthorized("Invalid token".into()));
+        }
+        let cache_key = format!("{}:{}", TOKEN_KEY, user_id?);
+        let mut con = self.redis_manager.clone().as_ref().clone();
+        let cached_token: Option<String> = con.get(&cache_key).await?;
+        Ok(cached_token.as_ref() == Some(&token.to_string()))
+    }
+
+    ///通用的token解析为用户ID
+    async fn get_user_id_from_token(&self, token: &str) -> Result<i64, Error> {
+        let jwt_secret =
+            std::env::var("JWT_SECRET").unwrap_or_else(|_| "default_secret".to_string());
+        let decoding_key = DecodingKey::from_secret(jwt_secret.as_bytes());
+        let validation = Validation::default();
+        let token_data = decode::<Claims>(token, &decoding_key, &validation)
+            .map_err(|_| Error::InvalidToken("Failed to decode token".into()))?;
+        let user_id = token_data.claims.sub;
+        Ok(user_id)
+    }
 }
+
 fn generate_token(user: &User) -> Result<String, Error> {
     let expiration = Utc::now()
         .checked_add_signed(Duration::hours(24))
@@ -156,19 +207,13 @@ fn generate_token(user: &User) -> Result<String, Error> {
     };
 
     let header = Header::default();
-    let encoding_key = EncodingKey::from_secret(user.id.to_string().as_bytes());
+    // 使用配置中的JWT_SECRET或者默认值
+    let jwt_secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "default_secret".to_string());
+    let encoding_key = EncodingKey::from_secret(jwt_secret.as_bytes());
     let token = jsonwebtoken::encode(&header, &claims, &encoding_key)
         .map_err(|_| Error::InvalidToken("Failed to generate token".into()))?;
     Ok(token)
 }
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Claims {
-    sub: i64,
-    email: String,
-    exp: usize,
-}
-
 
 #[cfg(test)]
 mod tests {}

@@ -8,6 +8,8 @@ pub struct Config {
     pub server: ServerConfig,
     pub app: AppConfig,
     pub logging: LoggingConfig,
+    pub redis: RedisConfig,
+    pub auth: AuthConfig,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -35,6 +37,20 @@ pub struct AppConfig {
 #[derive(Debug, Deserialize, Clone)]
 pub struct LoggingConfig {
     pub level: String,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct RedisConfig {
+    pub host: String,
+    pub port: u16,
+    pub username: String,
+    pub password: String,
+    pub db: i64,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct AuthConfig {
+    pub exclude_paths: Vec<String>,
 }
 
 impl Config {

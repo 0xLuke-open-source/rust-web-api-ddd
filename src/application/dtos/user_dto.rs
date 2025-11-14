@@ -1,7 +1,6 @@
-
+use crate::User;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
-use crate::User;
 
 #[derive(Debug, Validate, Deserialize)]
 pub struct CreateUserRequest {
@@ -15,15 +14,13 @@ pub struct CreateUserRequest {
     pub password: String,
 }
 
-
 #[derive(Debug, Validate, Deserialize)]
-pub struct LoginRequest{
+pub struct LoginRequest {
     #[validate(email)]
     pub email: String,
 
     #[validate(length(min = 8))]
     pub password: String,
-    
 }
 
 #[derive(Debug, Serialize)]
@@ -38,6 +35,11 @@ pub struct UserResponse {
 pub struct LoginResponse {
     pub token: String,
     pub user: UserResponse,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ValidateTokenRequest {
+    pub token: String,
 }
 
 impl From<User> for UserResponse {

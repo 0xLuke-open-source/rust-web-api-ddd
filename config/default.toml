@@ -6,6 +6,13 @@ password = ""
 database_name = "rust_test001"
 max_connections = 20
 
+[redis]
+host = "localhost"
+port = 6379
+username = ""
+password = "123456"
+db = 0
+
 [server]
 host = "0.0.0.0"
 port = 3000
@@ -16,3 +23,10 @@ hash_salt = ""
 
 [logging]
 level = "info"
+
+[auth]
+# 不需要token验证的路径列表
+exclude_paths = [
+    "/health",
+    "/users/login"
+]

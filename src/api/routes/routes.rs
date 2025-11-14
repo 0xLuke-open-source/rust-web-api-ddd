@@ -4,11 +4,13 @@ use crate::api::handlers::{
 };
 use crate::api::menu_handlers::{create_menu_handler, get_all_menus, get_menu_by_id};
 use crate::api::role_handlers::create_role_handler;
-use crate::api::{AppState, health_handlers::health_check_handler, login_handler};
+use crate::api::{AppState, health_handlers::health_check_handler, login_handler, logout_handler};
 use axum::Router;
 use axum::routing::{delete, get, post, put};
 use std::sync::Arc;
+use axum::middleware::from_fn_with_state;
 use tower_http::{compression::CompressionLayer, cors::CorsLayer, trace::TraceLayer};
+use crate::api::middleware::AuthMiddleware;
 
 /// 路由注册器 trait，每个模块实现此 trait 注册自己的路由
 pub trait RouteRegistrar {
@@ -83,9 +85,9 @@ impl RouteRegistrar for RoleRouteRegistrar {
             "/roles".to_string(),
             Router::new().route("/add", post(create_role_handler)),
             // .route("/{id}", get(get_role_handler))
-                                                                    // .route("/{id}", put(update_role_handler))
-                                                                    // .route("/{id}", delete(delete_role_handler))
-                                                                    // .route("/list", get(get_all_role_handler)),
+            // .route("/{id}", put(update_role_handler))
+            // .route("/{id}", delete(delete_role_handler))
+            // .route("/list", get(get_all_role_handler)),
         )
     }
 }
@@ -93,13 +95,56 @@ impl RouteRegistrar for RoleRouteRegistrar {
 /// 创建最终路由（通用入口）
 pub fn create_router(app_state: AppState) -> Router {
     let shared_state = Arc::new(app_state);
+    let auth_middleware = AuthMiddleware::new(shared_state.config.auth.clone());
+    // 创建公开路由（不需要认证）
+    let public_routes = Router::new()
+        .route("/health", get(health_check_handler))
+        .route("/users/login", post(login_handler))
+        .route("/users/add", post(create_user_handler))
+        .with_state(shared_state.clone());
 
-    RouteRegistry::collect_routes()
+    // 创建受保护的路由（需要认证）
+    let protected_routes = Router::new()
+        .nest(
+            "/users",
+            Router::new()
+                .route("/{id}", get(get_user_handler))
+                .route("/{id}", put(update_user_handler))
+                .route("/{id}", delete(delete_user_handler))
+                .route("/list", get(get_all_user_handler))
+                .route("/logout", get(logout_handler))
+            ,
+        )
+        .nest(
+            "/menus",
+            Router::new()
+                .route("/add", post(create_menu_handler))
+                .route("/{id}", get(get_menu_by_id))
+                .route("/all", get(get_all_menus)),
+        )
+        .nest(
+            "/roles",
+            Router::new().route("/add", post(create_role_handler)),
+        )
+        .layer(from_fn_with_state(
+            shared_state.clone(),
+            move |request, next| {
+                let auth_middleware = auth_middleware.clone();
+                async move {
+                    auth_middleware.auth_middleware(request, next).await
+                }
+            },
+        ))
+        .with_state(shared_state.clone());
+
+    // 合并所有路由
+    Router::new()
+        .merge(public_routes)
+        .merge(protected_routes)
         .layer(
             tower::ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())
                 .layer(CorsLayer::permissive())
                 .layer(CompressionLayer::new()),
         )
-        .with_state(shared_state)
 }

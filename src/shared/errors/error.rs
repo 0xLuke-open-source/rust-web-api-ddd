@@ -11,6 +11,9 @@ pub enum Error {
     #[error("Database error: {0}")]
     Database(#[from] sqlx::Error),
 
+    #[error("Redis error: {0}")]
+    Redis(#[from] redis::RedisError),
+
     #[error("Validation error: {0}")]
     Validation(String),
 
@@ -43,6 +46,7 @@ impl IntoResponse for Error {
     fn into_response(self) -> Response {
         let (status, _, code) = match self {
             Error::Database(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Database error", 500),
+            Error::Redis(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Redis error", 500),
             Error::Validation(_) => (StatusCode::BAD_REQUEST, "Validation error", 400),
             Error::NotFound(_) => (StatusCode::NOT_FOUND, "Not found", 404),
             Error::Conflict(_) => (StatusCode::CONFLICT, "Conflict", 409),

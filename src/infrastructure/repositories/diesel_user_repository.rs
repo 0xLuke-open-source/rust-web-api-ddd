@@ -29,6 +29,7 @@ impl Repository<User, i64> for DieselUserRepository {
     async fn find_by_id(&self, user_id: i64) -> Result<Option<User>, Error> {
         let mut conn = self.base.get_connection()?;
         let result = users
+
             .find(user_id)
             .first::<DieselUser>(&mut conn)
             .optional()

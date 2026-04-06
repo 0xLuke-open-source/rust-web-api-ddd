@@ -1,94 +1,109 @@
 # Rust Web API DDD
 
-A modern Web API project built with Rust, following the Domain-Driven Design (DDD) architectural pattern.
+一个基于 Rust 的现代化 Web API 项目，采用领域驱动设计（DDD）架构模式构建。
 
+## 项目特点
 
-## Project Features
+- 🚀 基于 Rust 构建，高性能、内存安全
+- 🏗️ 遵循领域驱动设计（DDD）架构模式
+- 🌐 使用 Axum Web 框架提供 RESTful API
+- 🗃️ 支持 MySQL 数据库（SQLx 和 Diesel 双 ORM）
+- 🔥 集成 Redis 缓存支持
+- 🔐 JWT 身份验证和授权机制
+- 🧪 单元测试友好的架构设计
+- 📦 模块化设计，易于扩展和维护
 
-- 🚀 Built with Rust for high performance and memory safety
-- 🏗️ Follows the Domain-Driven Design (DDD) architectural pattern
-- 🌐 Provides RESTful APIs using the Axum web framework
-- 🗃️ Supports MySQL database (with dual ORMs: SQLx and Diesel)
-- 🔥 Integrates Redis for caching
-- 🔐 JWT authentication and authorization mechanism
-- 🧪 Architecture designed for easy unit testing
-- 📦 Modular design for extensibility and maintainability
+## 技术栈
 
-
-## Tech Stack
-
-- **Language**: Rust
-- **Web Framework**: Axum
+- **语言**: Rust
+- **Web框架**: Axum
 - **ORM**: SQLx + Diesel
-- **Database**: MySQL
-- **Caching**: Redis
-- **Authentication**: JWT + Argon2
-- **Logging**: tracing + log
-- **Configuration Management**: config + dotenvy
-- **Serialization**: serde
+- **数据库**: MySQL
+- **缓存**: Redis
+- **身份验证**: JWT + Argon2
+- **日志**: tracing + log
+- **配置管理**: config + dotenvy
+- **序列化**: serde
+
+## 项目架构
+
+本项目遵循 Clean Architecture 原则，采用分层架构设计：
+
+## 功能模块
+
+### 用户管理
+- 用户注册
+- 用户登录/登出
+- 用户信息查询
+- 用户信息更新
+- 用户删除
+
+### 菜单管理
+- 菜单创建
+- 菜单查询
+
+### 角色管理
+- 角色创建
+
+## 快速开始
+
+### 环境要求
+
+- Rust 1.70 或更高版本
+- MySQL 5.7 或更高版本
+- Redis 5.0 或更高版本
+
+## 功能模块
+
+### 用户管理
+- 用户注册
+- 用户登录/登出
+- 用户信息查询
+- 用户信息更新
+- 用户删除
+
+### 菜单管理
+- 菜单创建
+- 菜单查询
+
+### 角色管理
+- 角色创建
+
+## 快速开始
+
+### 环境要求
+
+- Rust 1.70 或更高版本
+- MySQL 5.7 或更高版本
+- Redis 5.0 或更高版本
+
+### 配置
+
+1. 复制配置文件模板：
 
 
-## Project Architecture
+## 开发指南
 
-This project adheres to the principles of Clean Architecture and adopts a layered architectural design.
+### 添加新模块
 
+1. 在 `domain/entities/` 中创建领域实体
+2. 在 `domain/traits/` 中定义仓储接口
+3. 在 `application/dtos/` 中定义 DTO
+4. 在 `application/services/` 中实现业务逻辑
+5. 在 `infrastructure/repositories/` 中实现仓储
+6. 在 `api/handlers/` 中创建请求处理器
+7. 在 [api/routes/routes.rs](file:///Users/asa/work/project/AIME/aime-chain/rust/rust-web-api-ddd/src/api/routes/routes.rs) 中注册路由
 
-## Feature Modules
+### 代码规范
 
-### User Management
-- User registration
-- User login/logout
-- User information query
-- User information update
-- User deletion
+- 遵循 Rust 官方编码规范
+- 使用 `cargo fmt` 格式化代码
+- 使用 `cargo clippy` 检查代码质量
 
-### Menu Management
-- Menu creation
-- Menu query
-
-### Role Management
-- Role creation
-
-
-## Quick Start
-
-### Environment Requirements
-
-- Rust 1.70 or higher
-- MySQL 5.7 or higher
-- Redis 5.0 or higher
-
-
-### Configuration
-
-1. Copy the configuration file template:
-
-
-## Development Guide
-
-### Adding New Modules
-
-1. Create domain entities in `domain/entities/`
-2. Define repository interfaces in `domain/traits/`
-3. Define DTOs in `application/dtos/`
-4. Implement business logic in `application/services/`
-5. Implement repositories in `infrastructure/repositories/`
-6. Create request handlers in `api/handlers/`
-7. Register routes in [/routes/routes.rs)
-
-
-### Code Standards
-
-- Follow Rust's official coding standards
-- Format code with `cargo fmt`
-- Check code quality with `cargo clippy`
-
-
-## License
+## 许可证
 
 MIT License
 
+## 贡献
 
-## Contributions
-
-Contributions are welcome via Issues and Pull Requests to improve this project.
+欢迎提交 Issue 和 Pull Request 来改进这个项目。
